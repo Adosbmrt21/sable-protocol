@@ -144,10 +144,10 @@ export function createHUD(game) {
 
       if (bombState === 'planted') {
         el.bombStatus.hidden = false;
-        setText(el.bombStatus, 'bomb', `⚠ CORE PLANTED — SITE ${game.bomb.site} · ${Math.ceil(game.bomb.timeLeft)}s`);
+        setText(el.bombStatus, 'bomb', `⚠ BOMB PLANTED — SITE ${game.bomb.site} · ${Math.ceil(game.bomb.timeLeft)}s`);
       } else if (bombState === 'carried' && p.carryCore) {
         el.bombStatus.hidden = false;
-        setText(el.bombStatus, 'bomb', '◆ You carry the Core — plant at A or B [hold E]');
+        setText(el.bombStatus, 'bomb', '◆ You carry the Bomb — plant at A or B');
       } else {
         el.bombStatus.hidden = true;
       }
@@ -155,7 +155,7 @@ export function createHUD(game) {
       // Hint line: the one contextual action that matters right now.
       let hint = '';
       if (game.phase === 'buy') hint = 'Buy phase — press B or click to equip. Barriers drop soon.';
-      else if (game.phase === 'live' && p.alive && p.carryCore && game.playerInSite) hint = 'Hold E to plant the Core';
+      else if (game.phase === 'live' && p.alive && p.carryCore && game.playerInSite) hint = 'Hold E to plant the Bomb';
       else if (game.phase === 'live' && !p.alive) hint = 'You are down — watching your team.';
       setText(el.hint, 'hint', hint);
 

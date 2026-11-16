@@ -3,7 +3,7 @@
 A round-based tactical first-person shooter in the browser, in the style
 Counter-Strike made famous — but its own game throughout: its own map
 (Foundry Nine), teams (Wardens vs Jackals), weapons, objective (plant the
-Core at the Furnace or the Vault) and synthesized sound. Single-player
+Bomb at the Furnace or the Vault) and synthesized sound. Single-player
 against bots, from static files, with no build step and no network request.
 
 The lobby offers two modes: **Duel (1 vs 1)** — you against a single
@@ -42,7 +42,7 @@ the simulation cannot tell the difference.
 | Shift / Ctrl | Walk quietly / crouch |
 | R | Reload |
 | 1 / 2 | Pistol / primary |
-| E (hold) | Plant the Core inside a site |
+| E (hold) | Plant the Bomb inside a site |
 | F / G | Flash Charge / Shard grenade |
 | B | Buy menu · Tab Scoreboard |
 
@@ -71,7 +71,7 @@ sustained fire, so counter-strafing and tapping beat spraying.
   - `audio.js` — every sound synthesized in WebAudio; there are no audio
     files.
   - `main.js` — the match: a fixed-step (120 Hz) simulation kept apart from
-    rendering, round flow, the Core's plant/defuse/detonation, damage and
+    rendering, round flow, the Bomb's plant/defuse/detonation, damage and
     deaths, effects, the camera, and the deterministic `?shot=` screenshot
     modes.
 - `main.ts` — the hand-in program: copies `game/` and `screenshots/` to the

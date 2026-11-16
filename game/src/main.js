@@ -1,5 +1,5 @@
 // GOBLOK OPENFIRE — a round-based tactical FPS in three.js.
-// Wardens defend two foundry sites; Jackals carry the Core and plant it.
+// Wardens defend two foundry sites; Jackals carry the Bomb and plant it.
 // Money between rounds buys rifles, a sniper, armour and grenades; spread
 // punishes firing on the move, so the game rewards stopping, aiming and
 // trading angles. This module owns the match: the fixed-step simulation,
@@ -308,7 +308,7 @@ function killActor(shooter, target, head) {
     game.bomb.state = 'dropped';
     game.bomb.carrier = null;
     game.bomb.pos.copy(target.pos);
-    game.hud.killfeed('◆ The Core has been dropped');
+    game.hud.killfeed('◆ The Bomb has been dropped');
   }
   if (target.isPlayer) game.hud.banner('YOU ARE DOWN', 'Your team fights on without you', 2200);
 }
@@ -401,7 +401,7 @@ function nextRound() {
     if (a.benched) { a.alive = false; if (a.mesh) a.mesh.visible = false; }
     a.carryCore = false;
   }
-  // The Core goes to a random fielded Jackal — in a duel that is always
+  // The Bomb goes to a random fielded Jackal — in a duel that is always
   // the player; in a strike it lands on a teammate about as often.
   const jackals = game.actors.filter((a) => a.team === TEAM.JACKAL && !a.benched);
   const carrier = jackals[(game.rng() * jackals.length) | 0];
@@ -414,7 +414,7 @@ function nextRound() {
   game.phase = 'buy';
   game.phaseTimeLeft = RULES.buyTime;
   game.hud.showBuy(true);
-  game.hud.banner(`ROUND ${game.round}`, `${TEAM_NAME[TEAM.JACKAL]} attack · plant the Core or eliminate the Wardens`, 2400);
+  game.hud.banner(`ROUND ${game.round}`, `${TEAM_NAME[TEAM.JACKAL]} attack · plant the Bomb or eliminate the Wardens`, 2400);
 }
 
 function endRound(winner, reason) {
@@ -521,7 +521,7 @@ function step(dt) {
     game.phase = 'live';
     game.phaseTimeLeft = RULES.roundTime;
     game.hud.showBuy(false);
-    game.hud.banner('ROUND LIVE', game.bomb.carrier === player ? 'You have the Core — plant it at A or B' : 'Eliminate the Wardens or plant the Core', 1800);
+    game.hud.banner('ROUND LIVE', game.bomb.carrier === player ? 'You have the Bomb — plant it at A or B' : 'Eliminate the Wardens or plant the Bomb', 1800);
   } else if (phase === 'live' && game.bomb.state !== 'planted' && game.phaseTimeLeft <= 0) {
     endRound(TEAM.WARDEN, 'Time expired — the sites hold');
   } else if (phase === 'roundEnd' && game.phaseTimeLeft <= 0) {
@@ -536,7 +536,7 @@ function step(dt) {
     if (!wardensAlive && game.bomb.state !== 'planted') endRound(TEAM.JACKAL, 'Wardens eliminated');
     else if (!jackalsAlive && game.bomb.state !== 'planted') endRound(TEAM.WARDEN, 'Jackals eliminated');
     else if (!jackalsAlive && game.bomb.state === 'planted') {
-      // A planted Core still ticks: the round ends on the bomb, not the bodies.
+      // A planted Bomb still ticks: the round ends on the bomb, not the bodies.
     }
   }
 }
@@ -566,7 +566,7 @@ function stepBomb(dt) {
     if (channeling && site) {
       bomb.plantProgress += dt / RULES.plantTime;
       if (carrier.isPlayer) {
-        game.hud.setChannel('PLANTING THE CORE', bomb.plantProgress);
+        game.hud.setChannel('PLANTING THE BOMB', bomb.plantProgress);
         if ((game.time * 4 | 0) !== (((game.time - dt) * 4) | 0)) sfx.plantBeep((bomb.plantProgress * 4) | 0);
       }
       if (bomb.plantProgress >= 1) {
@@ -577,8 +577,8 @@ function stepBomb(dt) {
         bomb.timeLeft = RULES.bombTime;
         carrier.carryCore = false;
         if (carrier.isPlayer) game.hud.setChannel(null);
-        game.hud.banner('CORE PLANTED', `Site ${site.id} — defend it`, 2000);
-        game.hud.killfeed(`◆ Core planted at site ${site.id}`);
+        game.hud.banner('BOMB PLANTED', `Site ${site.id} — defend it`, 2000);
+        game.hud.killfeed(`◆ Bomb planted at site ${site.id}`);
         sfx.planted();
         for (const a of game.actors) {
           if (a.team === TEAM.JACKAL) a.money = Math.min(RULES.maxMoney, a.money + RULES.rewardPlant);
@@ -615,7 +615,7 @@ function stepBomb(dt) {
       if (defuser.channelReset) { bomb.defuseProgress = 0; defuser.channelReset = false; }
       if (bomb.defuseProgress >= 1) {
         bomb.state = 'defused';
-        endRound(TEAM.WARDEN, 'The Core was defused');
+        endRound(TEAM.WARDEN, 'The Bomb was defused');
         return;
       }
     } else {
@@ -630,7 +630,7 @@ function stepBomb(dt) {
         const d = a.pos.distanceTo(bomb.pos);
         if (d < 10) game.onDamage(null, a, 340 * (1 - d / 10), false);
       }
-      endRound(TEAM.JACKAL, 'The Core detonated');
+      endRound(TEAM.JACKAL, 'The Bomb detonated');
     }
   }
 }
@@ -753,7 +753,7 @@ window.addEventListener('contextmenu', (e) => e.preventDefault());
 // ?shot=start|buy|play|end&seed=N poses a deterministic scene with the real
 // simulation state, so the entry's screenshots are honest renders of the
 // game's own code: menu over the yard, the buy menu at spawn, a mid-round
-// firefight at the crossing, and a planted-Core round end at the Furnace.
+// firefight at the crossing, and a planted-Bomb round end at the Furnace.
 function setupShot(name) {
   game.hud.showMenu(false);
   game.score = [3, 2];
@@ -831,7 +831,7 @@ function setupShot(name) {
     game.bomb.pos.set(20.5, 0, -12.5);
     game.bomb.timeLeft = 24;
     game.score = [3, 3];
-    game.hud.banner('CORE PLANTED', 'Site A — defend it', 60000);
+    game.hud.banner('BOMB PLANTED', 'Site A — defend it', 60000);
   }
   for (const a of game.actors) if (a.mesh && a.alive) { a.mesh.position.copy(a.pos); }
   poseCamera(0.016);
@@ -869,6 +869,15 @@ function frame(now) {
   // The touch layer shows only while a match is running (see index.html).
   document.body.classList.toggle('playing', game.phase !== 'menu' && game.phase !== 'matchEnd');
   if (document.body.dataset.phase !== game.phase) document.body.dataset.phase = game.phase;
+  // The touch PLANT button exists only while planting is actually possible:
+  // live round, the player carries the Bomb, and they are inside a site.
+  const canPlant = game.phase === 'live' && game.bomb && game.bomb.state === 'carried'
+    && game.bomb.carrier === player && game.playerInSite;
+  document.body.classList.toggle('can-plant', canPlant);
+  if (canPlant) {
+    const pb = document.getElementById('t-plant');
+    if (pb) pb.style.setProperty('--p', (game.bomb.plantProgress || 0).toFixed(3));
+  }
   // Live spread estimate for the crosshair.
   const def = currentDef(player.loadout);
   const moveFactor = Math.min(1, Math.hypot(player.vel.x, player.vel.z) / BODY.walkSpeed);

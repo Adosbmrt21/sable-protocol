@@ -25,7 +25,7 @@ export const PALETTE = {
   lightCool: 0xcfe5ff,
 };
 
-// Teams. The player always leads the Jackals (attack): they carry the Core
+// Teams. The player always leads the Jackals (attack): they carry the Bomb
 // and plant it; the Wardens defend the two sites and defuse.
 export const TEAM = { WARDEN: 0, JACKAL: 1 };
 export const TEAM_NAME = ['Wardens', 'Jackals'];

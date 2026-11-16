@@ -169,6 +169,13 @@
   #touchui .tbtn.on { background: rgba(224,150,58,.65); border-color: var(--amber); color: #fff; }
   #touchui .tbtn:active { background: rgba(224,150,58,.5); }
   #t-fire  { right: 20px; bottom: 148px; width: 88px; height: 88px; font-size: 15px; border-color: rgba(255,150,110,.85); background: linear-gradient(180deg, rgba(224,101,58,.75), rgba(178,60,30,.75)); }
+  /* The plant button: big, amber, and only on screen while the player is
+     standing in a site holding the Bomb. Its face fills with the plant
+     progress (the --p custom property, set every frame). */
+  #touchui #t-plant { display: none; right: 116px; bottom: 252px; width: 84px; height: 84px; font-size: 14px; border-color: rgba(245,178,49,.9); color: #ffd97a;
+    background: conic-gradient(rgba(224,150,58,.85) calc(var(--p, 0) * 1turn), rgba(16,20,24,.72) 0); }
+  body.can-plant #touchui #t-plant { display: grid; animation: plantpulse 900ms ease-in-out infinite alternate; }
+  @keyframes plantpulse { from { box-shadow: 0 4px 0 rgba(0,0,0,.3), 0 0 0 0 rgba(245,178,49,0); } to { box-shadow: 0 4px 0 rgba(0,0,0,.3), 0 0 22px 5px rgba(245,178,49,.5); } }
   #t-scope { right: 30px; bottom: 248px; width: 60px; height: 60px; }
   #t-jump  { right: 122px; bottom: 108px; width: 62px; height: 62px; }
   #t-crouch{ right: 124px; bottom: 182px; width: 62px; height: 62px; }
@@ -307,7 +314,7 @@
       </g>
     </svg>
     <h1 id="menu-title">GOBLOK <span>OPENFIRE</span></h1>
-    <p>A round-based tactical shooter in the foundry of Foundry Nine. You lead the <b>Jackals</b>: plant the Core at the Furnace (A) or the Vault (B), or eliminate the Wardens holding them. Money buys rifles, armour and grenades between rounds — and shots only land true when you stop to aim.</p>
+    <p>A round-based tactical shooter in the foundry of Foundry Nine. You lead the <b>Jackals</b>: plant the Bomb at the Furnace (A) or the Vault (B), or eliminate the Wardens holding them. Money buys rifles, armour and grenades between rounds — and shots only land true when you stop to aim.</p>
     <div class="modes" role="group" aria-label="Match mode">
       <button class="mode-card" id="mode-duel" type="button">
         <span class="mode-name">1 <em>VS</em> 1</span>
@@ -326,7 +333,7 @@
       <li class="kb-row"><span><kbd>Mouse</kbd></span> Look · <kbd>Click</kbd> Fire</li>
       <li class="kb-row"><span><kbd>Shift</kbd></span> Walk (quiet) · <kbd>Ctrl</kbd> Crouch</li>
       <li class="kb-row"><span><kbd>R</kbd></span> Reload · <kbd>1</kbd><kbd>2</kbd> Weapons</li>
-      <li class="kb-row"><span><kbd>E</kbd></span> Plant the Core (hold, in a site)</li>
+      <li class="kb-row"><span><kbd>E</kbd></span> Plant the Bomb (hold, in a site)</li>
       <li class="kb-row"><span><kbd>F</kbd></span> Flash · <kbd>G</kbd> Shard grenade</li>
       <li class="kb-row"><span><kbd>B</kbd></span> Buy menu · <kbd>Tab</kbd> Scores</li>
       <li class="kb-row"><span><kbd>RMB</kbd></span> Scope (Verdict sniper)</li>
@@ -346,6 +353,7 @@
 
 <div id="touchui" aria-hidden="true">
   <div id="joy"><div id="joy-knob"></div></div>
+  <button class="tbtn" id="t-plant" type="button">PLANT</button>
   <button class="tbtn" id="t-fire" type="button">FIRE</button>
   <button class="tbtn" id="t-scope" type="button">SCOPE</button>
   <button class="tbtn" id="t-jump" type="button">JUMP</button>

@@ -220,6 +220,10 @@ function initTouchControls(canvas, onFirstGesture) {
   hold('t-use',
     () => { input.useHeld = true; input.usePressed = true; },
     () => { input.useHeld = false; });
+  // The big contextual PLANT button drives the same channel as USE/E.
+  hold('t-plant',
+    () => { input.useHeld = true; input.usePressed = true; },
+    () => { input.useHeld = false; });
   hold('t-score',
     () => input.keys.add('Tab'),
     () => input.keys.delete('Tab'));
