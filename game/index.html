@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sable Protocol — a three.js tactical FPS</title>
+<title>Goblok Openfire — a three.js tactical FPS</title>
 <style>
   /* Look plan: bright toy foundry. Chunky rounded panels with hard shadows,
      bone text, teal for the player's team and health, amber for money and
@@ -108,6 +108,24 @@
   .mascot { display: block; margin: 0 auto 10px; }
   .cta:hover { background: #ffb63e; }
   .cta:active { transform: translateY(3px); box-shadow: 0 2px 0 #8a5a12; }
+  .cta.ghost { background: transparent; color: #b97a1d; border-color: rgba(185,122,29,.55); box-shadow: none; margin-left: 10px; }
+  /* The lobby: a dark tactical theme over the yard, with mode cards. */
+  #menu .panel { width: min(640px, 100%); background: linear-gradient(160deg, #1a212d, #10141b 70%); border-color: rgba(245,178,49,.4); color: #e8edf4; }
+  #menu .panel h1 { color: #fff; }
+  #menu .panel p { color: #aebdd2; }
+  #menu .panel p b { color: #ffd97a; }
+  #menu .keys { color: #8d9db4; }
+  #menu .keys kbd { color: #e8edf4; border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.06); }
+  #menu .cta { width: 100%; margin-top: 16px; }
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 4px 0 2px; }
+  .mode-card { font: inherit; text-align: left; padding: 14px 16px; border-radius: 14px; border: 3px solid rgba(255,255,255,.14); background: rgba(255,255,255,.05); color: #dbe4f0; cursor: pointer; transition: border-color 80ms ease, background 80ms ease; }
+  .mode-card:hover { border-color: rgba(245,178,49,.55); }
+  .mode-card.selected { border-color: var(--amber); background: rgba(245,178,49,.13); box-shadow: 0 0 0 3px rgba(245,178,49,.2), 0 6px 18px rgba(0,0,0,.35); }
+  .mode-name { display: block; font-family: var(--font-display); font-size: 27px; letter-spacing: .04em; color: #fff; }
+  .mode-name em { font-style: normal; color: var(--amber); }
+  .mode-desc { display: block; margin-top: 5px; font-size: 12.5px; line-height: 1.45; color: #9fb0c6; }
+  .mode-tag { display: inline-block; margin-top: 9px; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,.09); font-size: 11px; font-weight: 700; letter-spacing: .06em; color: #ffd97a; }
+  @media (max-width: 560px) { .mode-name { font-size: 21px; } .mode-desc { font-size: 11.5px; } }
   .keys { margin: 20px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 7px 18px; font-size: 13px; color: var(--muted); }
   .keys kbd { display: inline-block; min-width: 22px; padding: 1px 6px; border: 1px solid var(--hairline); border-radius: 3px; font-family: var(--font-readout); font-size: 11px; color: var(--ink); text-align: center; margin-right: 3px; }
 
@@ -288,8 +306,20 @@
         <rect x="76" y="34" width="7" height="20" rx="3" fill="#f08a24"/><rect x="111" y="34" width="7" height="20" rx="3" fill="#f08a24"/>
       </g>
     </svg>
-    <h1 id="menu-title">SABLE <span>PROTOCOL</span></h1>
+    <h1 id="menu-title">GOBLOK <span>OPENFIRE</span></h1>
     <p>A round-based tactical shooter in the foundry of Foundry Nine. You lead the <b>Jackals</b>: plant the Core at the Furnace (A) or the Vault (B), or eliminate the Wardens holding them. Money buys rifles, armour and grenades between rounds — and shots only land true when you stop to aim.</p>
+    <div class="modes" role="group" aria-label="Match mode">
+      <button class="mode-card" id="mode-duel" type="button">
+        <span class="mode-name">1 <em>VS</em> 1</span>
+        <span class="mode-desc">Duel — you against a single Warden. Every round is a personal gunfight.</span>
+        <span class="mode-tag">FIRST TO 5 · 60s ROUNDS</span>
+      </button>
+      <button class="mode-card selected" id="mode-strike" type="button">
+        <span class="mode-name">5 <em>VS</em> 5</span>
+        <span class="mode-desc">Strike — the full squad match: plants, defuses and team economy.</span>
+        <span class="mode-tag">FIRST TO 9 · 100s ROUNDS</span>
+      </button>
+    </div>
     <button id="play" class="cta" type="button">Play ▸</button>
     <ul class="keys">
       <li class="kb-row"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span> Move</li>
@@ -310,6 +340,7 @@
     <h1 id="end-title">MATCH WON</h1>
     <p id="end-sub"></p>
     <button id="again" class="cta" type="button">Play again ▸</button>
+    <button id="lobby" class="cta ghost" type="button">Lobby</button>
   </section>
 </div>
 

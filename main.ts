@@ -1,4 +1,4 @@
-// SABLE PROTOCOL — the hand-in program (Node 22, standard library only).
+// GOBLOK OPENFIRE — the hand-in program (Node 22, standard library only).
 // The game itself is the static site in game/ (ES modules, no build step);
 // this program copies game/ and screenshots/ into the output directory and
 // writes the dossier the judge reads, using the kit's vendored library so

@@ -1,4 +1,4 @@
-// SABLE PROTOCOL — a round-based tactical FPS in three.js.
+// GOBLOK OPENFIRE — a round-based tactical FPS in three.js.
 // Wardens defend two foundry sites; Jackals carry the Core and plant it.
 // Money between rounds buys rifles, a sniper, armour and grenades; spread
 // punishes firing on the move, so the game rewards stopping, aiming and
@@ -7,7 +7,7 @@
 // deterministic screenshot modes the entry's screenshots are taken with.
 
 import * as THREE from 'three';
-import { TEAM, TEAM_NAME, RULES, WEAPONS, GRENADES, ARMOR_PRICE, BODY } from './config.js';
+import { TEAM, TEAM_NAME, RULES, MODES, WEAPONS, GRENADES, ARMOR_PRICE, BODY } from './config.js';
 import { buildWorld, SITES, SPAWNS } from './map.js';
 import { initInput, input, lockPointer, consumeEdges } from './input.js';
 import { makePlayerActor, stepPlayer } from './player.js';
@@ -215,6 +215,8 @@ const game = {
   grenades: [],
   sites: { A: SITES[0], B: SITES[1] },
   phase: 'menu', // menu | buy | live | roundEnd | matchEnd
+  mode: 'strike',       // the mode of the match in progress
+  pendingMode: 'strike', // the mode picked on the lobby cards
   phaseTimeLeft: 0,
   round: 0,
   score: [0, 0],
@@ -353,6 +355,38 @@ function resetActor(a, spawn) {
   }
 }
 
+// --- Match modes ------------------------------------------------------------------
+// The lobby cards pick a mode; starting a match copies its numbers into
+// RULES and benches every bot the mode does not field. Benched actors stay
+// dead and invisible for the whole match, so the round flow, the AI plans
+// and the scoreboard all see only the fielded teams.
+function applyMode(id) {
+  game.mode = id;
+  const m = MODES[id];
+  RULES.winTarget = m.winTarget;
+  RULES.maxRounds = m.maxRounds;
+  RULES.roundTime = m.roundTime;
+  RULES.startMoney = m.startMoney;
+  let jackalBots = 0;
+  let wardenBots = 0;
+  for (const a of game.actors) {
+    if (a.isPlayer) { a.benched = false; continue; }
+    const idx = a.team === TEAM.JACKAL ? jackalBots++ : wardenBots++;
+    const fielded = a.team === TEAM.JACKAL ? m.perTeam - 1 : m.perTeam;
+    a.benched = idx >= fielded;
+    if (a.benched) {
+      a.alive = false;
+      if (a.mesh) a.mesh.visible = false;
+    }
+  }
+}
+
+function freshMatch() {
+  game.score = [0, 0];
+  game.round = 0;
+  for (const a of game.actors) { a.money = RULES.startMoney; a.loadout = makeLoadout(); a.kills = 0; a.deaths = 0; }
+}
+
 function nextRound() {
   game.round += 1;
   game.grenades.forEach((g) => scene.remove(g.mesh));
@@ -364,12 +398,13 @@ function nextRound() {
   for (const a of game.actors) {
     if (a.team === TEAM.JACKAL) resetActor(a, jackalSpawns[ji++ % jackalSpawns.length]);
     else resetActor(a, wardenSpawns[wi++ % wardenSpawns.length]);
+    if (a.benched) { a.alive = false; if (a.mesh) a.mesh.visible = false; }
     a.carryCore = false;
   }
-  // The Core goes to a random Jackal — the player carries it about half the
-  // time, so planting is regularly in the player's own hands.
-  const jackals = game.actors.filter((a) => a.team === TEAM.JACKAL);
-  const carrier = game.rng() < 0.5 ? player : jackals[1 + ((game.rng() * 4) | 0)];
+  // The Core goes to a random fielded Jackal — in a duel that is always
+  // the player; in a strike it lands on a teammate about as often.
+  const jackals = game.actors.filter((a) => a.team === TEAM.JACKAL && !a.benched);
+  const carrier = jackals[(game.rng() * jackals.length) | 0];
   carrier.carryCore = true;
   game.bomb = {
     state: 'carried', carrier, pos: carrier.pos.clone(), site: null,
@@ -387,6 +422,7 @@ function endRound(winner, reason) {
   game.phaseTimeLeft = RULES.endTime;
   game.score[winner] += 1;
   for (const a of game.actors) {
+    if (a.benched) continue;
     if (a.team === winner) a.money = Math.min(RULES.maxMoney, a.money + RULES.rewardWin);
     else a.money = Math.min(RULES.maxMoney, a.money + (game.bomb.state === 'exploded' || game.bomb.state === 'planted' ? RULES.rewardPlantedLoss : RULES.rewardLoss));
   }
@@ -661,10 +697,17 @@ function poseCamera(frameDt) {
 
 // --- Wiring: menu, pointer lock, keys ------------------------------------------------
 initInput(renderer.domElement, unlockAudio);
+for (const id of ['duel', 'strike']) {
+  document.getElementById('mode-' + id).addEventListener('click', () => {
+    game.pendingMode = id;
+    document.getElementById('mode-duel').classList.toggle('selected', id === 'duel');
+    document.getElementById('mode-strike').classList.toggle('selected', id === 'strike');
+  });
+}
 document.getElementById('play').addEventListener('click', () => {
   unlockAudio();
   game.hud.showMenu(false);
-  if (game.phase === 'menu') nextRound();
+  if (game.phase === 'menu') { applyMode(game.pendingMode); freshMatch(); nextRound(); }
 });
 document.getElementById('deploy').addEventListener('click', () => {
   game.hud.showBuy(false);
@@ -672,10 +715,13 @@ document.getElementById('deploy').addEventListener('click', () => {
 });
 document.getElementById('again').addEventListener('click', () => {
   game.hud.hideEnd();
-  game.score = [0, 0];
-  game.round = 0;
-  for (const a of game.actors) { a.money = RULES.startMoney; a.loadout = makeLoadout(); a.kills = 0; a.deaths = 0; }
+  freshMatch();
   nextRound();
+});
+document.getElementById('lobby').addEventListener('click', () => {
+  game.hud.hideEnd();
+  game.phase = 'menu';
+  game.hud.showMenu(true);
 });
 renderer.domElement.addEventListener('mousedown', () => {
   if ((game.phase === 'live' || game.phase === 'buy') && !input.locked && game.hud.el.buyMenu.hidden && !shotMode) {

@@ -1,4 +1,4 @@
-// SABLE PROTOCOL — the human player's body. Mouse look, acceleration-based
+// GOBLOK OPENFIRE — the human player's body. Mouse look, acceleration-based
 // movement with friction, crouching, jumping and wall collision, all stepped
 // at the simulation's fixed rate so the feel does not depend on frame rate.
 // The camera and viewmodel are posed by main.js from the state kept here.

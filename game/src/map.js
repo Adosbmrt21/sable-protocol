@@ -1,4 +1,4 @@
-// SABLE PROTOCOL — Foundry Nine, the map. One original layout: a dusk
+// GOBLOK OPENFIRE — Foundry Nine, the map. One original layout: a dusk
 // foundry yard with two plant sites (the Furnace in the north, the Vault in
 // the south), a mid crossing, two long lanes and short connectors, so every
 // round offers at least three routes to each site. The same wall list drives

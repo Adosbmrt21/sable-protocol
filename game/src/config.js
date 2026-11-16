@@ -1,4 +1,4 @@
-// SABLE PROTOCOL — shared configuration.
+// GOBLOK OPENFIRE — shared configuration.
 // One place for the numbers the rest of the game reads: the palette, the two
 // teams, the weapon table, the economy and the round rules. Nothing here
 // touches the DOM or three.js, so the simulation and the HUD read the same
@@ -48,6 +48,14 @@ export const RULES = {
   rewardKill: 300,
   rewardPlant: 300,        // extra for the planter's whole team
   rewardPlantedLoss: 800,  // attackers still earn this if a planted round is lost
+};
+
+// Match modes, chosen in the lobby. The active mode's numbers are copied
+// into RULES when a match starts; perTeam benches the unused bots, so a
+// duel is the same simulation with nine actors sitting out.
+export const MODES = {
+  duel: { perTeam: 1, winTarget: 5, maxRounds: 9, roundTime: 60, startMoney: 1000 },
+  strike: { perTeam: 5, winTarget: 9, maxRounds: 16, roundTime: 100, startMoney: 800 },
 };
 
 // The arsenal. Damage is per pellet/bullet at point blank; falloff is applied

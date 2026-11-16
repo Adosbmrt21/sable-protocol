@@ -1,4 +1,4 @@
-// SABLE PROTOCOL — weapons and combat. Hitscan gunfire resolved against the
+// GOBLOK OPENFIRE — weapons and combat. Hitscan gunfire resolved against the
 // map's wall boxes and two body spheres per actor (head and chest), so a
 // headshot is a place, not a dice roll. Spread grows with movement and with
 // sustained fire; standing still and tapping is the accurate way to shoot,

@@ -1,10 +1,15 @@
-# Sable Protocol — a three.js tactical FPS
+# Goblok Openfire — a three.js tactical FPS
 
 A round-based tactical first-person shooter in the browser, in the style
 Counter-Strike made famous — but its own game throughout: its own map
 (Foundry Nine), teams (Wardens vs Jackals), weapons, objective (plant the
 Core at the Furnace or the Vault) and synthesized sound. Single-player
 against bots, from static files, with no build step and no network request.
+
+The lobby offers two modes: **Duel (1 vs 1)** — you against a single
+Warden, first to 5 rounds with 60-second rounds — and **Strike (5 vs 5)**,
+the full squad match, first to 9 with 100-second rounds. Both run the same
+simulation; the duel simply benches the other nine fighters.
 
 The fighters are blocky toy figures in the brick-toy tradition — yellow
 heads with a grin, team-coloured torsos, hinged limbs that swing as they

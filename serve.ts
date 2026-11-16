@@ -64,5 +64,5 @@ createServer((request, response) => {
   // deterministic screenshot modes); the file path ignores it by design.
   createReadStream(file).pipe(response);
 }).listen(port, '127.0.0.1', () => {
-  console.log(`Sable Protocol is on http://localhost:${port}`);
+  console.log(`Goblok Openfire is on http://localhost:${port}`);
 });

@@ -1,4 +1,4 @@
-// SABLE PROTOCOL — the HUD. Plain DOM over the canvas: health and armour,
+// GOBLOK OPENFIRE — the HUD. Plain DOM over the canvas: health and armour,
 // ammunition, money, the round clock and score, a kill feed, round banners,
 // the buy menu, a Tab scoreboard and a canvas minimap fed by the same wall
 // list the simulation uses. Text nodes are only rewritten when their value
@@ -96,7 +96,7 @@ export function createHUD(game) {
     showScoreboard(show) {
       el.scoreboard.hidden = !show;
       if (!show) return;
-      const rows = [...game.actors].sort((a, b) => (b.kills - a.kills) || (a.deaths - b.deaths));
+      const rows = game.actors.filter((a) => !a.benched).sort((a, b) => (b.kills - a.kills) || (a.deaths - b.deaths));
       el.scoreRows.innerHTML = rows.map((a) => `
         <tr class="${a.team === game.player.team ? 'us' : 'them'}${a.alive ? '' : ' dead'}">
           <td>${a.isPlayer ? '★ ' : ''}${a.name}</td><td>${TEAM_NAME[a.team]}</td>

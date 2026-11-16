@@ -1,4 +1,4 @@
-// SABLE PROTOCOL — input. Keyboard state, mouse look through pointer lock,
+// GOBLOK OPENFIRE — input. Keyboard state, mouse look through pointer lock,
 // one-shot action edges (fire pressed, reload pressed, number keys) that the
 // fixed-step simulation consumes exactly once, and a full touch layer for
 // mobile: a virtual joystick, drag-to-look on the view, and a button for

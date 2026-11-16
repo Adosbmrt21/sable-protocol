@@ -1,4 +1,4 @@
-// SABLE PROTOCOL — synthesized sound. No audio files: every effect is built
+// GOBLOK OPENFIRE — synthesized sound. No audio files: every effect is built
 // from oscillators and filtered noise in WebAudio, so the game ships as pure
 // code and still cracks, clicks and booms. One shared context, created lazily
 // on the first user gesture (browsers refuse audio before one).

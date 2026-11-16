@@ -1,4 +1,4 @@
-// SABLE PROTOCOL — the bots. Each bot is a body on the same physics as the
+// GOBLOK OPENFIRE — the bots. Each bot is a body on the same physics as the
 // player (circle collision, gravity, the same weapon code) driven by a small
 // state machine: follow a waypoint route to an objective, hold a position and
 // scan, or fight a seen enemy with bursts and strafes. Perception is honest:
@@ -186,7 +186,7 @@ export function assignPlans(game) {
   const rng = game.rng;
   const site = rng() < 0.62 ? 'A' : 'B';
   const alt = site === 'A' ? 'B' : 'A';
-  const jackals = game.actors.filter((a) => !a.isPlayer && a.team === TEAM.JACKAL);
+  const jackals = game.actors.filter((a) => !a.isPlayer && !a.benched && a.team === TEAM.JACKAL);
   const routes = {
     A: ['aLongOut', 'aSiteIn', 'aMain', 'aShort'],
     B: ['bTunOut', 'bSiteIn', 'bMain', 'bShort'],
@@ -203,7 +203,7 @@ export function assignPlans(game) {
     // The player carries: bots push the chosen site ahead of them.
     jackals.forEach((bot, i) => { bot.plan = { role: 'push', site, via: routes[site][i % routes[site].length] }; });
   }
-  const wardens = game.actors.filter((a) => a.team === TEAM.WARDEN);
+  const wardens = game.actors.filter((a) => !a.benched && a.team === TEAM.WARDEN);
   const holds = [
     { site: 'A', holdId: 'aSite' }, { site: 'A', holdId: 'aSiteBack' }, { site: 'A', holdId: 'aLobby' },
     { site: 'B', holdId: 'bSite' }, { site: 'B', holdId: 'bSiteBack' },
