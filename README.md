@@ -16,6 +16,13 @@ node serve.ts            # Node 22, standard library only
 Click **Play**, gear up in the buy phase, then **Deploy**. First team to 9
 rounds wins the match.
 
+On a phone or tablet the game is fully touch-playable: a virtual joystick
+moves, dragging on the view looks, and every action has its own button —
+FIRE, SCOPE, JUMP and CRCH around the right thumb, plus a strip with
+reload, use/plant, both grenades, both weapon slots, walk, buy and scores.
+The touch layer writes the same input state as the keyboard and mouse, so
+the simulation cannot tell the difference.
+
 | Key | Action |
 | --- | --- |
 | WASD / mouse | Move / look |
@@ -47,6 +54,8 @@ sustained fire, so counter-strafing and tapping beat spraying.
     spheres, recoil bloom, grenades that arc, bounce, blind and fragment.
   - `hud.js` — health, ammo, money, clock, kill feed, buy menu, scoreboard
     and a live minimap.
+  - `input.js` — keyboard, pointer-lock mouse and the mobile touch layer
+    (joystick, drag look, full button set) behind one state object.
   - `audio.js` — every sound synthesized in WebAudio; there are no audio
     files.
   - `main.js` — the match: a fixed-step (120 Hz) simulation kept apart from

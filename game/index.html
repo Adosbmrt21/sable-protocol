@@ -126,6 +126,60 @@
   #scoreboard tr.us td { color: #a8e0da; }
   #scoreboard tr.them td { color: #f0c9a8; }
   #scoreboard tr.dead td { opacity: .45; }
+
+  /* --- Touch controls (mobile) -------------------------------------------
+     Shown only on touch devices while a match is running (body.touch.playing,
+     both classes set from input.js / main.js). Every desktop feature gets a
+     thumb control: joystick move, drag look, fire, scope, jump, crouch,
+     walk, reload, use/plant, both grenades, both weapon slots, buy, scores. */
+  html, body { touch-action: none; overscroll-behavior: none; }
+  #buymenu, #scoreboard, .overlay { z-index: 40; }
+  #touchui { display: none; }
+  body.touch.playing #touchui { display: block; }
+  #touchui .tbtn {
+    position: fixed; z-index: 30; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.35); background: rgba(16,20,24,.5);
+    color: #e8e4da; font-family: var(--font-readout); font-size: 12px; letter-spacing: .05em;
+    display: grid; place-items: center; padding: 0; cursor: pointer;
+    -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none; -webkit-user-select: none;
+  }
+  #touchui .tbtn.on { background: rgba(224,150,58,.65); border-color: var(--amber); color: #fff; }
+  #touchui .tbtn:active { background: rgba(224,150,58,.5); }
+  #t-fire  { right: 20px; bottom: 148px; width: 88px; height: 88px; font-size: 15px; border-color: rgba(255,120,90,.7); background: rgba(120,40,25,.5); }
+  #t-scope { right: 30px; bottom: 248px; width: 60px; height: 60px; }
+  #t-jump  { right: 122px; bottom: 108px; width: 62px; height: 62px; }
+  #t-crouch{ right: 124px; bottom: 182px; width: 62px; height: 62px; }
+  #joy {
+    position: fixed; z-index: 30; left: 18px; bottom: 62px; width: 124px; height: 124px;
+    border-radius: 50%; border: 1px solid rgba(255,255,255,.3); background: rgba(16,20,24,.4);
+    touch-action: none;
+  }
+  #joy-knob {
+    position: absolute; left: 50%; top: 50%; width: 54px; height: 54px; border-radius: 50%;
+    background: rgba(232,228,218,.35); border: 1px solid rgba(255,255,255,.45);
+    transform: translate(-50%, -50%);
+  }
+  #t-strip {
+    position: fixed; z-index: 30; left: 50%; bottom: 10px; transform: translateX(-50%);
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: 54vw;
+  }
+  #t-strip .tbtn { position: static; width: 46px; height: 46px; font-size: 10px; }
+  body.touch.playing #vitals { bottom: 200px; }
+  body.touch.playing #armory { top: 8px; bottom: auto; }
+  body.touch.playing #killfeed { top: 108px; }
+  @media (max-height: 500px) {
+    body.touch.playing #vitals { bottom: 212px; }
+    #t-fire  { bottom: 128px; width: 78px; height: 78px; }
+    #t-scope { bottom: 216px; }
+    #t-crouch{ bottom: 168px; }
+    #t-jump  { bottom: 96px; }
+  }
+  @media (max-width: 700px) {
+    #minimap { transform: scale(.7); transform-origin: top left; }
+    #topbar { transform: scale(.82); transform-origin: top center; }
+    .panel { padding: 20px 18px; }
+    .keys { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -210,6 +264,7 @@
       <li><span><kbd>F</kbd></span> Flash · <kbd>G</kbd> Shard grenade</li>
       <li><span><kbd>B</kbd></span> Buy menu · <kbd>Tab</kbd> Scores</li>
       <li><span><kbd>RMB</kbd></span> Scope (Verdict sniper)</li>
+      <li><span><kbd>Touch</kbd></span> On mobile: joystick, drag to look, a button for every action</li>
     </ul>
   </section>
 </div>
@@ -220,6 +275,25 @@
     <p id="end-sub"></p>
     <button id="again" class="cta" type="button">Play again ▸</button>
   </section>
+</div>
+
+<div id="touchui" aria-hidden="true">
+  <div id="joy"><div id="joy-knob"></div></div>
+  <button class="tbtn" id="t-fire" type="button">FIRE</button>
+  <button class="tbtn" id="t-scope" type="button">SCOPE</button>
+  <button class="tbtn" id="t-jump" type="button">JUMP</button>
+  <button class="tbtn" id="t-crouch" type="button">CRCH</button>
+  <div id="t-strip">
+    <button class="tbtn" id="t-reload" type="button">RLD</button>
+    <button class="tbtn" id="t-use" type="button">USE</button>
+    <button class="tbtn" id="t-flash" type="button">FLS</button>
+    <button class="tbtn" id="t-shard" type="button">SHD</button>
+    <button class="tbtn" id="t-slot1" type="button">GUN1</button>
+    <button class="tbtn" id="t-slot2" type="button">GUN2</button>
+    <button class="tbtn" id="t-walk" type="button">WALK</button>
+    <button class="tbtn" id="t-buy" type="button">BUY</button>
+    <button class="tbtn" id="t-score" type="button">SCR</button>
+  </div>
 </div>
 
 <script type="importmap">

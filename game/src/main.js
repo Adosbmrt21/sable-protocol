@@ -465,7 +465,7 @@ function step(dt) {
       if (phase === 'live') {
         const scopedKey = player.loadout.current === 'verdict';
         player.loadout.scoped = scopedKey && input.keys.has('MouseRight');
-        stepWeapon(game, player, dt, input.firing && input.locked);
+        stepWeapon(game, player, dt, input.firing && (input.locked || input.touchMode));
       }
     }
     // Bots hold still and shop during the buy phase; they play in live.
@@ -681,7 +681,7 @@ renderer.domElement.addEventListener('mousedown', () => {
   }
 });
 window.addEventListener('keydown', (e) => {
-  if (game.phase === 'buy' && input.locked) {
+  if (game.phase === 'buy' && (input.locked || input.touchMode)) {
     const map = { Digit1: 'marauder', Digit2: 'longbow', Digit3: 'verdict', Digit4: 'armor', Digit5: 'flash', Digit6: 'shard' };
     if (map[e.code]) game.onBuy(map[e.code]);
   }
@@ -818,6 +818,8 @@ function frame(now) {
   poseCamera(frameDt);
   game.hud.update(game, now);
   game.hud.showScoreboard(input.keys.has('Tab'));
+  // The touch layer shows only while a match is running (see index.html).
+  document.body.classList.toggle('playing', game.phase !== 'menu' && game.phase !== 'matchEnd');
   // Live spread estimate for the crosshair.
   const def = currentDef(player.loadout);
   const moveFactor = Math.min(1, Math.hypot(player.vel.x, player.vel.z) / BODY.walkSpeed);
