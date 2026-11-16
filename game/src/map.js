@@ -321,11 +321,27 @@ function canvasTexture(draw, w = 256, h = 256) {
 
 export function buildWorld(scene) {
   scene.background = new THREE.Color(PALETTE.sky);
-  scene.fog = new THREE.Fog(PALETTE.fog, 55, 130);
+  scene.fog = new THREE.Fog(PALETTE.fog, 70, 175);
 
-  const hemi = new THREE.HemisphereLight(PALETTE.lightCool, 0x3a3128, 0.85);
+  // A gradient sky dome: deep blue overhead melting to a pale horizon.
+  const skyTex = canvasTexture((g, w, h) => {
+    const grad = g.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, '#4f97d4');
+    grad.addColorStop(0.55, '#9cc8ec');
+    grad.addColorStop(1, '#eaf4fc');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, w, h);
+  }, 32, 256);
+  skyTex.wrapS = skyTex.wrapT = THREE.ClampToEdgeWrapping;
+  const sky = new THREE.Mesh(
+    new THREE.SphereGeometry(240, 24, 14),
+    new THREE.MeshBasicMaterial({ map: skyTex, side: THREE.BackSide, fog: false }),
+  );
+  scene.add(sky);
+
+  const hemi = new THREE.HemisphereLight(PALETTE.lightCool, 0x3a3128, 1.05);
   scene.add(hemi);
-  const sun = new THREE.DirectionalLight(PALETTE.lightWarm, 1.6);
+  const sun = new THREE.DirectionalLight(PALETTE.lightWarm, 1.9);
   sun.position.set(-30, 42, -18);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
@@ -340,17 +356,20 @@ export function buildWorld(scene) {
   fill.position.set(24, 20, 30);
   scene.add(fill);
 
-  // Ground: worn concrete-and-sand with painted lane wear, tiled.
+  // Ground: warm sand-concrete on a one-metre baseplate grid, tiled.
   const groundTex = canvasTexture((g, w, h) => {
-    g.fillStyle = '#8a7a5f';
+    g.fillStyle = '#b59a6b';
     g.fillRect(0, 0, w, h);
     for (let i = 0; i < 2600; i++) {
-      g.fillStyle = Math.random() > 0.5 ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.045)';
+      g.fillStyle = Math.random() > 0.5 ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
       g.fillRect(Math.random() * w, Math.random() * h, 2.5, 2.5);
     }
-    g.strokeStyle = 'rgba(40,36,30,0.25)';
-    g.lineWidth = 2;
-    g.strokeRect(1, 1, w - 2, h - 2);
+    g.strokeStyle = 'rgba(70,56,36,0.28)';
+    g.lineWidth = 3;
+    for (let i = 0; i <= 4; i++) {
+      g.beginPath(); g.moveTo((w / 4) * i, 0); g.lineTo((w / 4) * i, h); g.stroke();
+      g.beginPath(); g.moveTo(0, (h / 4) * i); g.lineTo(w, (h / 4) * i); g.stroke();
+    }
   });
   groundTex.repeat.set(16, 12);
   const ground = new THREE.Mesh(
@@ -361,11 +380,45 @@ export function buildWorld(scene) {
   ground.receiveShadow = true;
   scene.add(ground);
 
+  // Near-white detail textures: the palette colour tints them, so walls read
+  // as seamed, riveted panels and crates as framed planks instead of flat
+  // blocks — the geometry and UVs stay exactly as they were.
+  const panelTex = canvasTexture((g, w, h) => {
+    g.fillStyle = '#d8dde2';
+    g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 900; i++) {
+      g.fillStyle = Math.random() > 0.5 ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)';
+      g.fillRect(Math.random() * w, Math.random() * h, 2.5, 2.5);
+    }
+    g.strokeStyle = 'rgba(28,34,42,0.55)';
+    g.lineWidth = 3;
+    g.strokeRect(0, 0, w, h);
+    g.beginPath(); g.moveTo(w / 2, 0); g.lineTo(w / 2, h); g.stroke();
+    g.fillStyle = 'rgba(28,34,42,0.5)';
+    for (const [x, y] of [[15, 15], [w - 15, 15], [15, h - 15], [w - 15, h - 15]]) {
+      g.beginPath(); g.arc(x, y, 4, 0, Math.PI * 2); g.fill();
+    }
+  });
+  const crateTex = canvasTexture((g, w, h) => {
+    g.fillStyle = '#dec49c';
+    g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 500; i++) {
+      g.fillStyle = Math.random() > 0.5 ? 'rgba(90,64,30,0.06)' : 'rgba(255,255,255,0.05)';
+      g.fillRect(Math.random() * w, Math.random() * h, 3, 2);
+    }
+    g.strokeStyle = 'rgba(90,64,30,0.7)';
+    g.lineWidth = 12;
+    g.strokeRect(6, 6, w - 12, h - 12);
+    g.lineWidth = 3;
+    for (const y of [h * 0.37, h * 0.63]) {
+      g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke();
+    }
+  });
   const mats = {
-    wall: new THREE.MeshStandardMaterial({ color: PALETTE.wall, roughness: 0.85, metalness: 0.08 }),
-    dark: new THREE.MeshStandardMaterial({ color: PALETTE.wallDark, roughness: 0.9, metalness: 0.08 }),
-    crate: new THREE.MeshStandardMaterial({ color: PALETTE.crate, roughness: 0.8, metalness: 0 }),
-    metal: new THREE.MeshStandardMaterial({ color: PALETTE.metal, roughness: 0.45, metalness: 0.6 }),
+    wall: new THREE.MeshStandardMaterial({ map: panelTex, color: PALETTE.wall, roughness: 0.7, metalness: 0.08 }),
+    dark: new THREE.MeshStandardMaterial({ map: panelTex, color: PALETTE.wallDark, roughness: 0.75, metalness: 0.08 }),
+    crate: new THREE.MeshStandardMaterial({ map: crateTex, color: PALETTE.crate, roughness: 0.8, metalness: 0 }),
+    metal: new THREE.MeshStandardMaterial({ map: panelTex, color: PALETTE.metal, roughness: 0.4, metalness: 0.5 }),
     furnace: new THREE.MeshStandardMaterial({ color: 0x5d4a3a, roughness: 0.6, metalness: 0.4, emissive: 0xd95f1e, emissiveIntensity: 0.55 }),
     vault: new THREE.MeshStandardMaterial({ color: 0x39585c, roughness: 0.4, metalness: 0.65, emissive: 0x1e6f6a, emissiveIntensity: 0.4 }),
   };

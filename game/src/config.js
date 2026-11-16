@@ -4,24 +4,25 @@
 // touches the DOM or three.js, so the simulation and the HUD read the same
 // values and can never drift apart.
 
-// The look: a dusk foundry. Slate steel, rust, sand and one teal signal colour.
+// The look: a bright toy foundry at midday. Saturated team colours, pale
+// steel, warm sand and one teal signal colour — plastic, not grime.
 export const PALETTE = {
-  sky: 0x2b3644,
-  fog: 0x39434f,
-  ground: 0x8a7a5f,
-  groundDark: 0x6f6152,
-  wall: 0x707a86,
-  wallDark: 0x4d565f,
-  trim: 0xb0562f,
-  crate: 0x977950,
-  crateDark: 0x77603c,
-  metal: 0x59636d,
+  sky: 0x8fc3e8,
+  fog: 0xa9c8e2,
+  ground: 0xb59a6b,
+  groundDark: 0x8f7a54,
+  wall: 0x93a5b5,
+  wallDark: 0x64748a,
+  trim: 0xe07b39,
+  crate: 0xc79a5b,
+  crateDark: 0x9a773f,
+  metal: 0x7d8fa1,
   siteA: 0xe07b39,
-  siteB: 0x3fa7a0,
-  warden: 0x7fa6c9,
-  jackal: 0xd98a4a,
-  lightWarm: 0xffd9a0,
-  lightCool: 0xbcd3e6,
+  siteB: 0x2ec4b6,
+  warden: 0x4a90d9,
+  jackal: 0xf08a24,
+  lightWarm: 0xffe3b3,
+  lightCool: 0xcfe5ff,
 };
 
 // Teams. The player always leads the Jackals (attack): they carry the Core

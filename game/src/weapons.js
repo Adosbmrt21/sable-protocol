@@ -292,9 +292,10 @@ function popGrenade(game, g) {
 
 export function buildViewmodel(key) {
   const group = new THREE.Group();
-  const body = new THREE.MeshStandardMaterial({ color: 0x2e3236, roughness: 0.5, metalness: 0.55 });
+  const body = new THREE.MeshStandardMaterial({ color: 0x3a4046, roughness: 0.35, metalness: 0.3 });
   const grip = new THREE.MeshStandardMaterial({ color: 0x54432e, roughness: 0.85, metalness: 0 });
-  const accent = new THREE.MeshStandardMaterial({ color: 0xb0562f, roughness: 0.6, metalness: 0.3 });
+  const accent = new THREE.MeshStandardMaterial({ color: 0xe07b39, roughness: 0.5, metalness: 0.2 });
+  const hand = new THREE.MeshStandardMaterial({ color: 0xf5cd30, roughness: 0.32, metalness: 0.02 });
   const box = (mat, sx, sy, sz, x, y, z, rx = 0) => {
     const m = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), mat);
     m.position.set(x, y, z);
@@ -327,6 +328,10 @@ export function buildViewmodel(key) {
     box(grip, 0.045, 0.05, 0.16, 0, -0.06, -0.3);
     box(accent, 0.062, 0.02, 0.12, 0, 0.055, -0.3);
   }
+  // The shooter's own toy hands: one on the grip, and a support hand under
+  // the forestock of the two-handed guns.
+  box(hand, 0.078, 0.075, 0.095, 0, -0.145, 0.045);
+  if (key !== 'kestrel') box(hand, 0.075, 0.06, 0.09, -0.01, -0.085, -0.3);
   group.position.set(0.24, -0.22, -0.45);
   return group;
 }

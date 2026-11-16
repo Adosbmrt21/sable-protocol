@@ -6,6 +6,13 @@ Counter-Strike made famous — but its own game throughout: its own map
 Core at the Furnace or the Vault) and synthesized sound. Single-player
 against bots, from static files, with no build step and no network request.
 
+The fighters are blocky toy figures in the brick-toy tradition — yellow
+heads with a grin, team-coloured torsos, hinged limbs that swing as they
+walk — fighting across a bright midday foundry of seamed steel panels,
+under a gradient sky, with ACES tone mapping. The interface matches:
+chunky rounded panels, hard shadows, segmented health blocks and a banner
+that pops.
+
 ## Play it
 
 ```sh

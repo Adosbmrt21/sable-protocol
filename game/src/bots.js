@@ -16,31 +16,95 @@ const NAMES = {
   [TEAM.JACKAL]: ['Mara', 'Doss', 'Ivers', 'Kade'],
 };
 
-// A low-poly soldier: boots, legs, a team-coloured torso, head with a visor
-// band, and a rifle. Built facing -Z, the same way aimDir points.
+// The classic toy-figure face — two oval eyes and a grin — drawn once on a
+// canvas and worn on the front (-Z) of every bot's head.
+function faceTexture() {
+  const c = document.createElement('canvas');
+  c.width = c.height = 128;
+  const g = c.getContext('2d');
+  g.fillStyle = '#f5cd30';
+  g.fillRect(0, 0, 128, 128);
+  g.fillStyle = '#23262b';
+  g.beginPath(); g.ellipse(42, 50, 9, 14, 0, 0, Math.PI * 2); g.fill();
+  g.beginPath(); g.ellipse(86, 50, 9, 14, 0, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#23262b';
+  g.lineWidth = 7;
+  g.lineCap = 'round';
+  g.beginPath(); g.arc(64, 72, 27, Math.PI * 0.18, Math.PI * 0.82); g.stroke();
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+// A blocky toy soldier in the brick-figure tradition: yellow head and hands,
+// a team-coloured torso, hinged arms and legs that swing as it walks, and a
+// rifle held forward in the right hand. Built facing -Z, the way aimDir
+// points. The head's hit sphere still sits at 1.52, inside the head block.
 export function buildBotMesh(team) {
   const g = new THREE.Group();
-  const cloth = new THREE.MeshStandardMaterial({ color: team === TEAM.WARDEN ? PALETTE.warden : PALETTE.jackal, roughness: 0.85 });
-  const dark = new THREE.MeshStandardMaterial({ color: 0x2c2f33, roughness: 0.7, metalness: 0.2 });
-  const skin = new THREE.MeshStandardMaterial({ color: 0xc9a183, roughness: 0.8 });
-  const box = (mat, sx, sy, sz, x, y, z) => {
+  const teamColor = team === TEAM.WARDEN ? PALETTE.warden : PALETTE.jackal;
+  const plastic = (color) => new THREE.MeshStandardMaterial({ color, roughness: 0.32, metalness: 0.02 });
+  const cloth = plastic(teamColor);
+  const dark = plastic(0x33383f);
+  const yellow = plastic(0xf5cd30);
+  const legsMat = plastic(team === TEAM.WARDEN ? 0x2e4a73 : 0x74512a);
+  const box = (parent, mat, sx, sy, sz, x, y, z) => {
     const m = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), mat);
     m.position.set(x, y, z);
     m.castShadow = true;
-    g.add(m);
+    parent.add(m);
     return m;
   };
-  box(dark, 0.17, 0.5, 0.2, -0.13, 0.25, 0);       // legs
-  box(dark, 0.17, 0.5, 0.2, 0.13, 0.25, 0);
-  box(cloth, 0.52, 0.62, 0.3, 0, 0.82, 0);          // torso
-  box(dark, 0.56, 0.14, 0.34, 0, 0.55, 0);          // belt/kit
-  box(cloth, 0.15, 0.5, 0.17, -0.34, 0.85, -0.04);  // arms
-  box(cloth, 0.15, 0.5, 0.17, 0.34, 0.85, -0.04);
-  box(skin, 0.26, 0.28, 0.26, 0, 1.36, 0);          // head (sphere tests sit at 1.52 incl. helmet)
-  box(dark, 0.3, 0.12, 0.3, 0, 1.55, 0);            // helmet
-  box(dark, 0.28, 0.07, 0.05, 0, 1.38, -0.14);      // visor
-  box(dark, 0.07, 0.09, 0.52, 0.18, 0.95, -0.3);    // rifle
-  g.userData.head = g.children[5];
+  const limb = (x, y) => {
+    const p = new THREE.Group();
+    p.position.set(x, y, 0);
+    g.add(p);
+    return p;
+  };
+
+  // Legs on hip pivots, with shoes.
+  const legL = limb(-0.15, 0.64);
+  const legR = limb(0.15, 0.64);
+  for (const leg of [legL, legR]) {
+    box(leg, legsMat, 0.25, 0.6, 0.27, 0, -0.3, 0);
+    box(leg, dark, 0.25, 0.11, 0.37, 0, -0.585, -0.045);
+  }
+  // Torso and belt.
+  box(g, cloth, 0.58, 0.6, 0.32, 0, 0.94, 0);
+  box(g, dark, 0.6, 0.12, 0.34, 0, 0.66, 0);
+  // Arms on shoulder pivots; yellow hands. The right arm aims its rifle.
+  const armL = limb(-0.38, 1.2);
+  const armR = limb(0.38, 1.2);
+  for (const arm of [armL, armR]) {
+    box(arm, cloth, 0.17, 0.56, 0.19, 0, -0.28, 0);
+    box(arm, yellow, 0.16, 0.15, 0.17, 0, -0.62, 0);
+  }
+  armR.rotation.x = 1.3;
+  const gun = new THREE.Group();
+  gun.position.set(0, -0.64, -0.06);
+  gun.rotation.x = -1.28; // counter the arm pitch: the rifle stays level
+  armR.add(gun);
+  box(gun, dark, 0.08, 0.11, 0.58, 0, 0, -0.2);
+  box(gun, cloth, 0.086, 0.05, 0.2, 0, 0.075, -0.3);
+  box(gun, dark, 0.05, 0.16, 0.08, 0, -0.11, 0.02);
+  // Head: a yellow block with the face in front and a stud on top.
+  const head = new THREE.Group();
+  head.position.set(0, 1.24, 0);
+  g.add(head);
+  const face = new THREE.MeshStandardMaterial({ map: faceTexture(), roughness: 0.32, metalness: 0.02 });
+  const skull = new THREE.Mesh(
+    new THREE.BoxGeometry(0.42, 0.38, 0.4),
+    [yellow, yellow, yellow, yellow, yellow, face],
+  );
+  skull.position.y = 0.19;
+  skull.castShadow = true;
+  head.add(skull);
+  const stud = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.08, 14), yellow);
+  stud.position.y = 0.42;
+  stud.castShadow = true;
+  head.add(stud);
+
+  g.userData = { legL, legR, armL, armR, head };
   return g;
 }
 
@@ -313,13 +377,31 @@ export function stepBot(game, bot, dt) {
   const state = bot.loadout.owned[bot.loadout.current];
   if (state && state.mag === 0) startReload(game, bot);
 
-  // Pose the mesh.
+  // Pose the mesh, with a toy walk cycle on the limb pivots: legs and the
+  // free arm swing against each other, the head bobs, and a crouch bends
+  // the whole figure down on bent legs.
   if (bot.mesh) {
     bot.mesh.position.copy(bot.pos);
     bot.mesh.rotation.y = bot.yaw + Math.PI;
     const crouchDip = bot.crouch ? 0.34 : 0;
     bot.mesh.position.y = bot.pos.y - crouchDip;
     bot.mesh.visible = bot.alive;
+    const u = bot.mesh.userData;
+    if (u.legL) {
+      const moving = Math.min(1, spd / 3.2);
+      if (spd > 0.25) bot.walkPhase = (bot.walkPhase || 0) + dt * (3 + spd * 2.4);
+      const swing = Math.sin(bot.walkPhase || 0) * 0.62 * moving;
+      if (bot.crouch) {
+        u.legL.rotation.x = -0.9;
+        u.legR.rotation.x = 0.25;
+        u.armL.rotation.x = 0.5;
+      } else {
+        u.legL.rotation.x = swing;
+        u.legR.rotation.x = -swing;
+        u.armL.rotation.x = -swing * 0.85;
+      }
+      u.head.position.y = 1.24 + Math.abs(Math.sin(bot.walkPhase || 0)) * 0.03 * moving;
+    }
   }
 }
 
