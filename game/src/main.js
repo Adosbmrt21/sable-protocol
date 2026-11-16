@@ -349,7 +349,7 @@ function resetActor(a, spawn) {
   if (a.mesh) {
     a.mesh.visible = true;
     a.mesh.position.copy(a.pos);
-    a.mesh.rotation.y = a.yaw + Math.PI;
+    a.mesh.rotation.y = a.yaw;
   }
 }
 
@@ -721,7 +721,7 @@ function setupShot(name) {
     a.pos.set(x, 0, z);
     a.yaw = THREE.MathUtils.degToRad(yawDeg);
     a.pitch = 0;
-    if (a.mesh) { a.mesh.position.copy(a.pos); a.mesh.rotation.y = a.yaw + Math.PI; }
+    if (a.mesh) { a.mesh.position.copy(a.pos); a.mesh.rotation.y = a.yaw; }
   };
   if (name === 'start') {
     game.phase = 'live';
@@ -822,6 +822,7 @@ function frame(now) {
   game.hud.showScoreboard(input.keys.has('Tab'));
   // The touch layer shows only while a match is running (see index.html).
   document.body.classList.toggle('playing', game.phase !== 'menu' && game.phase !== 'matchEnd');
+  if (document.body.dataset.phase !== game.phase) document.body.dataset.phase = game.phase;
   // Live spread estimate for the crosshair.
   const def = currentDef(player.loadout);
   const moveFactor = Math.min(1, Math.hypot(player.vel.x, player.vel.z) / BODY.walkSpeed);

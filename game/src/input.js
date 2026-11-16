@@ -112,14 +112,19 @@ export function walkHeld() {
 // writes the same input fields the keyboard and mouse use.
 function initTouchControls(canvas, onFirstGesture) {
   const $ = (id) => document.getElementById(id);
+  // Platform auto-detect: the touch layer belongs to phones and tablets,
+  // where the coarse pointer is the primary one. A computer or laptop —
+  // including a touchscreen laptop, whose primary pointer is fine — never
+  // enables it, so desktop players never see the mobile buttons.
+  const finePrimary = () => !!(window.matchMedia && matchMedia('(pointer: fine)').matches);
   const enable = () => {
     if (!input.touchMode) {
       input.touchMode = true;
       document.body.classList.add('touch');
     }
   };
-  if (window.matchMedia && matchMedia('(pointer: coarse)').matches) enable();
-  window.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') enable(); }, { passive: true });
+  if (window.matchMedia && matchMedia('(pointer: coarse)').matches && !finePrimary()) enable();
+  window.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch' && !finePrimary()) enable(); }, { passive: true });
 
   // Dragging on the view looks around, at a touch-tuned sensitivity.
   let lookId = null;

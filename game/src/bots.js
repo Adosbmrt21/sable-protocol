@@ -84,9 +84,26 @@ export function buildBotMesh(team) {
   gun.position.set(0, -0.64, -0.06);
   gun.rotation.x = -1.28; // counter the arm pitch: the rifle stays level
   armR.add(gun);
-  box(gun, dark, 0.08, 0.11, 0.58, 0, 0, -0.2);
-  box(gun, cloth, 0.086, 0.05, 0.2, 0, 0.075, -0.3);
-  box(gun, dark, 0.05, 0.16, 0.08, 0, -0.11, 0.02);
+  // A proper little rifle, not a slab: receiver with a team band, railed
+  // handguard, round barrel and brake, curved magazine, stock and sights.
+  const steel = plastic(0x6a727c);
+  const gcyl = (mat, r, len, x, y, z) => {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 12), mat);
+    m.rotation.x = Math.PI / 2;
+    m.position.set(x, y, z);
+    m.castShadow = true;
+    gun.add(m);
+    return m;
+  };
+  box(gun, dark, 0.075, 0.1, 0.34, 0, 0, -0.08);
+  box(gun, cloth, 0.079, 0.104, 0.06, 0, 0, -0.02);
+  box(gun, dark, 0.07, 0.08, 0.18, 0, -0.005, -0.27);
+  gcyl(steel, 0.014, 0.3, 0, 0.02, -0.42);
+  gcyl(dark, 0.021, 0.055, 0, 0.02, -0.58);
+  box(gun, dark, 0.04, 0.15, 0.055, 0, -0.13, -0.05);
+  box(gun, dark, 0.05, 0.09, 0.16, 0, -0.01, 0.16);
+  box(gun, steel, 0.014, 0.045, 0.014, 0, 0.072, -0.32);
+  box(gun, steel, 0.04, 0.03, 0.02, 0, 0.065, 0.03);
   // Head: a yellow block with the face in front and a stud on top.
   const head = new THREE.Group();
   head.position.set(0, 1.24, 0);
@@ -382,7 +399,7 @@ export function stepBot(game, bot, dt) {
   // the whole figure down on bent legs.
   if (bot.mesh) {
     bot.mesh.position.copy(bot.pos);
-    bot.mesh.rotation.y = bot.yaw + Math.PI;
+    bot.mesh.rotation.y = bot.yaw;
     const crouchDip = bot.crouch ? 0.34 : 0;
     bot.mesh.position.y = bot.pos.y - crouchDip;
     bot.mesh.visible = bot.alive;

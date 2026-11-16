@@ -323,15 +323,44 @@ export function buildWorld(scene) {
   scene.background = new THREE.Color(PALETTE.sky);
   scene.fog = new THREE.Fog(PALETTE.fog, 70, 175);
 
-  // A gradient sky dome: deep blue overhead melting to a pale horizon.
+  // A gradient sky dome: deep blue overhead melting to a pale horizon, with
+  // a light overcast — soft cloud clusters with grey bellies, drawn wrapped
+  // so the dome's seam never shows.
   const skyTex = canvasTexture((g, w, h) => {
     const grad = g.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, '#4f97d4');
-    grad.addColorStop(0.55, '#9cc8ec');
+    grad.addColorStop(0, '#5b93c9');
+    grad.addColorStop(0.55, '#a8cbe9');
     grad.addColorStop(1, '#eaf4fc');
     g.fillStyle = grad;
     g.fillRect(0, 0, w, h);
-  }, 32, 256);
+    const puff = (x, y, r, alpha) => {
+      const rg = g.createRadialGradient(x, y, 0, x, y, r);
+      rg.addColorStop(0, `rgba(255,255,255,${alpha})`);
+      rg.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = rg;
+      g.fillRect(x - r, y - r, r * 2, r * 2);
+    };
+    const cloud = (x, y, s, a) => {
+      for (const ox of [0, -w, w]) {
+        g.fillStyle = 'rgba(110,128,150,0.16)';
+        g.beginPath();
+        g.ellipse(x + ox, y + 14 * s, 62 * s, 13 * s, 0, 0, Math.PI * 2);
+        g.fill();
+        puff(x + ox, y, 46 * s, a);
+        puff(x + ox + 38 * s, y + 6 * s, 33 * s, a * 0.9);
+        puff(x + ox - 40 * s, y + 8 * s, 29 * s, a * 0.9);
+        puff(x + ox + 15 * s, y - 13 * s, 28 * s, a * 0.85);
+        puff(x + ox - 18 * s, y - 9 * s, 24 * s, a * 0.8);
+      }
+    };
+    cloud(46, 42, 1.0, 0.75);
+    cloud(190, 74, 0.7, 0.6);
+    cloud(338, 36, 0.9, 0.7);
+    cloud(472, 88, 0.62, 0.55);
+    cloud(118, 128, 0.55, 0.45);
+    cloud(424, 146, 0.5, 0.42);
+    cloud(268, 116, 0.45, 0.4);
+  }, 512, 256);
   skyTex.wrapS = skyTex.wrapT = THREE.ClampToEdgeWrapping;
   const sky = new THREE.Mesh(
     new THREE.SphereGeometry(240, 24, 14),

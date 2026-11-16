@@ -291,47 +291,117 @@ function popGrenade(game, g) {
 // ---------------------------------------------------------------------------
 
 export function buildViewmodel(key) {
+  // Detailed display models in the Point Blank tradition: real silhouettes
+  // assembled from machined-looking parts — barrels and suppressors as
+  // cylinders, curved magazines, stocks, rails, posts and glass — instead
+  // of the single slabs the first build shipped with. Purely cosmetic:
+  // every number the simulation uses lives in config.js.
   const group = new THREE.Group();
-  const body = new THREE.MeshStandardMaterial({ color: 0x3a4046, roughness: 0.35, metalness: 0.3 });
-  const grip = new THREE.MeshStandardMaterial({ color: 0x54432e, roughness: 0.85, metalness: 0 });
+  const metal = new THREE.MeshStandardMaterial({ color: 0x2e3238, roughness: 0.38, metalness: 0.65 });
+  const steel = new THREE.MeshStandardMaterial({ color: 0x6a727c, roughness: 0.3, metalness: 0.8 });
+  const polymer = new THREE.MeshStandardMaterial({ color: 0x1e2124, roughness: 0.55, metalness: 0.2 });
   const accent = new THREE.MeshStandardMaterial({ color: 0xe07b39, roughness: 0.5, metalness: 0.2 });
+  const glass = new THREE.MeshStandardMaterial({ color: 0x0e2a33, roughness: 0.15, metalness: 0.4, emissive: 0x1e6f6a, emissiveIntensity: 0.7 });
   const hand = new THREE.MeshStandardMaterial({ color: 0xf5cd30, roughness: 0.32, metalness: 0.02 });
-  const box = (mat, sx, sy, sz, x, y, z, rx = 0) => {
+  const box = (mat, sx, sy, sz, x, y, z, rx = 0, rz = 0) => {
     const m = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), mat);
     m.position.set(x, y, z);
     m.rotation.x = rx;
+    m.rotation.z = rz;
+    group.add(m);
+    return m;
+  };
+  const cyl = (mat, r, len, x, y, z) => {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 14), mat);
+    m.rotation.x = Math.PI / 2;
+    m.position.set(x, y, z);
     group.add(m);
     return m;
   };
   if (key === 'kestrel') {
-    box(body, 0.055, 0.075, 0.21, 0, 0, -0.05);
-    box(grip, 0.05, 0.13, 0.06, 0, -0.09, 0.03, 0.25);
-    box(accent, 0.057, 0.02, 0.05, 0, 0.045, -0.13);
+    // A service pistol: long slide, exposed barrel tip, railed frame.
+    box(steel, 0.058, 0.05, 0.25, 0, 0.03, -0.06);
+    box(metal, 0.06, 0.02, 0.03, 0, 0.032, 0.045);
+    box(metal, 0.06, 0.02, 0.03, 0, 0.032, 0.028);
+    cyl(steel, 0.013, 0.035, 0, 0.032, -0.195);
+    box(metal, 0.05, 0.045, 0.21, 0, -0.012, -0.04);
+    box(polymer, 0.042, 0.018, 0.11, 0, -0.042, -0.1);
+    box(polymer, 0.045, 0.013, 0.1, 0, -0.055, -0.045); // trigger-guard bar
+    box(polymer, 0.052, 0.15, 0.07, 0, -0.115, 0.05, 0.28);
+    box(metal, 0.02, 0.028, 0.03, 0, 0.012, 0.078);      // hammer
+    box(steel, 0.008, 0.026, 0.01, 0, 0.066, -0.168);    // front sight
+    box(steel, 0.032, 0.02, 0.012, 0, 0.064, 0.052);     // rear sight
+    box(accent, 0.059, 0.012, 0.05, 0, 0.058, -0.13);
+    box(hand, 0.08, 0.085, 0.1, 0, -0.145, 0.055);
   } else if (key === 'marauder') {
-    box(body, 0.06, 0.09, 0.4, 0, 0, -0.12);
-    box(grip, 0.05, 0.13, 0.06, 0, -0.1, 0.05, 0.25);
-    box(body, 0.045, 0.16, 0.055, 0, -0.13, -0.12);
-    box(accent, 0.062, 0.025, 0.1, 0, 0.05, -0.2);
+    // A compact SMG: receiver, long suppressor, curved magazine, wire stock.
+    box(metal, 0.06, 0.085, 0.34, 0, 0, -0.08);
+    box(polymer, 0.056, 0.06, 0.15, 0, -0.012, -0.21);
+    cyl(metal, 0.027, 0.21, 0, 0.006, -0.35);
+    cyl(steel, 0.028, 0.02, 0, 0.006, -0.46);
+    box(polymer, 0.04, 0.17, 0.055, 0, -0.14, -0.06, 0.18);
+    box(polymer, 0.04, 0.1, 0.05, 0, -0.228, -0.032, 0.4);
+    box(polymer, 0.048, 0.13, 0.06, 0, -0.105, 0.065, 0.25);
+    box(steel, 0.012, 0.012, 0.13, -0.018, -0.002, 0.15);
+    box(steel, 0.012, 0.012, 0.13, 0.018, -0.002, 0.15);
+    box(polymer, 0.056, 0.11, 0.026, 0, -0.008, 0.225);
+    box(steel, 0.04, 0.032, 0.02, 0, 0.058, 0.03);       // rear sight
+    cyl(steel, 0.02, 0.014, 0, 0.052, -0.19);            // front ring sight
+    box(steel, 0.008, 0.03, 0.008, 0, 0.03, -0.19);
+    box(steel, 0.02, 0.016, 0.035, -0.04, 0.022, -0.15); // charging handle
+    box(accent, 0.062, 0.02, 0.09, 0, 0.048, -0.16);
+    box(hand, 0.08, 0.08, 0.095, 0, -0.14, 0.07);
+    box(hand, 0.075, 0.06, 0.09, -0.005, -0.062, -0.22);
   } else if (key === 'verdict') {
-    box(body, 0.055, 0.08, 0.62, 0, 0, -0.2);
-    box(grip, 0.05, 0.12, 0.06, 0, -0.09, 0.08, 0.25);
-    const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.17, 10), body);
-    scope.rotation.x = Math.PI / 2;
-    scope.position.set(0, 0.085, -0.16);
-    group.add(scope);
-    box(accent, 0.057, 0.018, 0.08, 0, 0.02, -0.44);
+    // A bolt-action sniper: heavy barrel, big glass, cheek riser, bipod.
+    box(metal, 0.06, 0.085, 0.26, 0, 0, -0.02);
+    box(polymer, 0.056, 0.07, 0.24, 0, -0.015, -0.24);
+    cyl(steel, 0.017, 0.5, 0, 0.015, -0.45);
+    cyl(metal, 0.027, 0.09, 0, 0.015, -0.72);
+    cyl(steel, 0.028, 0.012, 0, 0.015, -0.685);
+    cyl(steel, 0.028, 0.012, 0, 0.015, -0.755);
+    box(steel, 0.02, 0.032, 0.03, 0, 0.058, -0.15);
+    box(steel, 0.02, 0.032, 0.03, 0, 0.058, -0.02);
+    cyl(metal, 0.021, 0.3, 0, 0.095, -0.085);
+    cyl(metal, 0.031, 0.07, 0, 0.095, -0.255);
+    cyl(glass, 0.026, 0.005, 0, 0.095, -0.292);
+    cyl(metal, 0.026, 0.05, 0, 0.095, 0.09);
+    box(polymer, 0.052, 0.09, 0.28, 0, -0.032, 0.17);
+    box(polymer, 0.054, 0.04, 0.14, 0, 0.032, 0.19);     // cheek riser
+    box(polymer, 0.054, 0.12, 0.02, 0, -0.03, 0.315);
+    cyl(steel, 0.008, 0.05, 0.048, 0.005, 0.03);
+    box(steel, 0.022, 0.022, 0.022, 0.072, -0.005, 0.03); // bolt knob
+    box(polymer, 0.04, 0.09, 0.07, 0, -0.09, -0.05, 0.1);
+    box(polymer, 0.046, 0.12, 0.055, 0, -0.1, 0.065, 0.25);
+    box(steel, 0.011, 0.17, 0.011, -0.036, -0.1, -0.33, 0.55);
+    box(steel, 0.011, 0.17, 0.011, 0.036, -0.1, -0.33, 0.55);
+    box(accent, 0.062, 0.016, 0.1, 0, 0.05, -0.3);
+    box(hand, 0.08, 0.08, 0.095, 0, -0.135, 0.07);
+    box(hand, 0.075, 0.06, 0.09, -0.005, -0.07, -0.25);
+    group.position.set(0.24, -0.22, -0.5);
+    return group;
   } else {
-    // longbow
-    box(body, 0.06, 0.095, 0.52, 0, 0, -0.16);
-    box(grip, 0.05, 0.13, 0.06, 0, -0.1, 0.06, 0.25);
-    box(body, 0.04, 0.17, 0.05, 0, -0.14, -0.16);
-    box(grip, 0.045, 0.05, 0.16, 0, -0.06, -0.3);
-    box(accent, 0.062, 0.02, 0.12, 0, 0.055, -0.3);
+    // longbow — an assault rifle: railed handguard, brake, curved magazine.
+    box(metal, 0.062, 0.09, 0.3, 0, 0, -0.05);
+    box(steel, 0.064, 0.03, 0.09, 0, 0.012, -0.02);
+    box(steel, 0.03, 0.02, 0.3, 0, 0.056, -0.05);
+    for (const z of [-0.17, -0.1, -0.03, 0.04]) box(steel, 0.036, 0.009, 0.016, 0, 0.07, z);
+    box(polymer, 0.058, 0.075, 0.22, 0, -0.005, -0.27);
+    for (const z of [-0.34, -0.27, -0.2]) box(steel, 0.034, 0.012, 0.02, 0, 0.04, z);
+    cyl(steel, 0.013, 0.22, 0, 0.012, -0.47);
+    cyl(metal, 0.02, 0.06, 0, 0.012, -0.6);
+    cyl(steel, 0.014, 0.016, 0, 0.012, -0.64);
+    box(steel, 0.016, 0.05, 0.016, 0, 0.045, -0.44);     // front sight post
+    box(steel, 0.03, 0.036, 0.018, 0, 0.078, 0.03);      // rear sight
+    box(polymer, 0.042, 0.16, 0.06, 0, -0.13, -0.03, 0.15);
+    box(polymer, 0.042, 0.11, 0.055, 0, -0.218, -0.002, 0.36);
+    box(polymer, 0.048, 0.13, 0.06, 0, -0.105, 0.08, 0.25);
+    box(polymer, 0.05, 0.085, 0.17, 0, -0.015, 0.17);
+    box(polymer, 0.052, 0.11, 0.02, 0, -0.02, 0.26);
+    box(accent, 0.064, 0.02, 0.12, 0, 0.052, -0.3);
+    box(hand, 0.08, 0.08, 0.095, 0, -0.14, 0.085);
+    box(hand, 0.075, 0.06, 0.09, -0.005, -0.068, -0.27);
   }
-  // The shooter's own toy hands: one on the grip, and a support hand under
-  // the forestock of the two-handed guns.
-  box(hand, 0.078, 0.075, 0.095, 0, -0.145, 0.045);
-  if (key !== 'kestrel') box(hand, 0.075, 0.06, 0.09, -0.01, -0.085, -0.3);
   group.position.set(0.24, -0.22, -0.45);
   return group;
 }

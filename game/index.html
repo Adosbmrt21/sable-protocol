@@ -172,6 +172,18 @@
   body.touch.playing #vitals { bottom: 200px; }
   body.touch.playing #armory { top: 8px; bottom: auto; }
   body.touch #bomb-status { top: 134px; }
+  /* Platform- and phase-aware UI: on touch devices the keyboard hints and
+     buy-menu hotkey chips disappear, and the touch layer only shows the
+     buttons that can actually do something in the current phase. */
+  body.touch .buy-key { display: none; }
+  .keys li.touch-row { display: none; }
+  body.touch .keys li.touch-row { display: block; }
+  body.touch .keys li.kb-row { display: none; }
+  body.touch[data-phase='buy'] #t-fire, body.touch[data-phase='buy'] #t-scope,
+  body.touch[data-phase='buy'] #t-jump, body.touch[data-phase='buy'] #t-crouch,
+  body.touch[data-phase='buy'] #t-reload, body.touch[data-phase='buy'] #t-use,
+  body.touch[data-phase='buy'] #t-flash, body.touch[data-phase='buy'] #t-shard { display: none; }
+  body.touch[data-phase='roundEnd'] #touchui { display: none; }
   body.touch.playing #killfeed { top: 108px; }
   @media (max-height: 500px) {
     body.touch.playing #vitals { bottom: 212px; }
@@ -280,15 +292,15 @@
     <p>A round-based tactical shooter in the foundry of Foundry Nine. You lead the <b>Jackals</b>: plant the Core at the Furnace (A) or the Vault (B), or eliminate the Wardens holding them. Money buys rifles, armour and grenades between rounds — and shots only land true when you stop to aim.</p>
     <button id="play" class="cta" type="button">Play ▸</button>
     <ul class="keys">
-      <li><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span> Move</li>
-      <li><span><kbd>Mouse</kbd></span> Look · <kbd>Click</kbd> Fire</li>
-      <li><span><kbd>Shift</kbd></span> Walk (quiet) · <kbd>Ctrl</kbd> Crouch</li>
-      <li><span><kbd>R</kbd></span> Reload · <kbd>1</kbd><kbd>2</kbd> Weapons</li>
-      <li><span><kbd>E</kbd></span> Plant the Core (hold, in a site)</li>
-      <li><span><kbd>F</kbd></span> Flash · <kbd>G</kbd> Shard grenade</li>
-      <li><span><kbd>B</kbd></span> Buy menu · <kbd>Tab</kbd> Scores</li>
-      <li><span><kbd>RMB</kbd></span> Scope (Verdict sniper)</li>
-      <li><span><kbd>Touch</kbd></span> On mobile: joystick, drag to look, a button for every action</li>
+      <li class="kb-row"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span> Move</li>
+      <li class="kb-row"><span><kbd>Mouse</kbd></span> Look · <kbd>Click</kbd> Fire</li>
+      <li class="kb-row"><span><kbd>Shift</kbd></span> Walk (quiet) · <kbd>Ctrl</kbd> Crouch</li>
+      <li class="kb-row"><span><kbd>R</kbd></span> Reload · <kbd>1</kbd><kbd>2</kbd> Weapons</li>
+      <li class="kb-row"><span><kbd>E</kbd></span> Plant the Core (hold, in a site)</li>
+      <li class="kb-row"><span><kbd>F</kbd></span> Flash · <kbd>G</kbd> Shard grenade</li>
+      <li class="kb-row"><span><kbd>B</kbd></span> Buy menu · <kbd>Tab</kbd> Scores</li>
+      <li class="kb-row"><span><kbd>RMB</kbd></span> Scope (Verdict sniper)</li>
+      <li class="touch-row"><span><kbd>Touch</kbd></span> On mobile: joystick, drag to look, a button for every action</li>
     </ul>
   </section>
 </div>
