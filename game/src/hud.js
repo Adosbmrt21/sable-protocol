@@ -129,7 +129,8 @@ export function createHUD(game) {
       }
       setText(el.grenades, 'nades', `Flash ×${loadout.grenades.flash} [F] · Shard ×${loadout.grenades.shard} [G]`);
 
-      const clock = game.phase === 'planted' ? game.bomb.timeLeft : game.phaseTimeLeft;
+      const bombState = game.bomb ? game.bomb.state : 'none';
+      const clock = bombState === 'planted' ? game.bomb.timeLeft : game.phaseTimeLeft;
       const t = Math.max(0, Math.ceil(clock));
       setText(el.timer, 'timer', `${(t / 60) | 0}:${String(t % 60).padStart(2, '0')}`);
       el.timer.classList.toggle('low', t <= 10 && game.phase === 'live');
@@ -141,10 +142,10 @@ export function createHUD(game) {
       setText(el.aliveUs, 'aus', '●'.repeat(aliveUs) + '○'.repeat(5 - aliveUs));
       setText(el.aliveThem, 'athem', '●'.repeat(aliveThem) + '○'.repeat(5 - aliveThem));
 
-      if (game.bomb.state === 'planted') {
+      if (bombState === 'planted') {
         el.bombStatus.hidden = false;
         setText(el.bombStatus, 'bomb', `⚠ CORE PLANTED — SITE ${game.bomb.site} · ${Math.ceil(game.bomb.timeLeft)}s`);
-      } else if (game.bomb.state === 'carried' && p.carryCore) {
+      } else if (bombState === 'carried' && p.carryCore) {
         el.bombStatus.hidden = false;
         setText(el.bombStatus, 'bomb', '◆ You carry the Core — plant at A or B [hold E]');
       } else {
@@ -194,7 +195,7 @@ export function createHUD(game) {
       g.font = 'bold 9px system-ui';
       g.fillText(site.id, px(site.x) - 3, pz(site.z) + 3);
     }
-    if (game.bomb.state === 'planted') {
+    if (game.bomb && game.bomb.state === 'planted') {
       g.fillStyle = '#ff5347';
       g.beginPath();
       g.arc(px(game.bomb.pos.x), pz(game.bomb.pos.z), 3.4, 0, Math.PI * 2);

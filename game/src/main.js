@@ -57,8 +57,8 @@ window.addEventListener('resize', () => {
 const fx = (() => {
   const tracerGeo = new THREE.BoxGeometry(0.016, 0.016, 1);
   const tracerMats = [
-    new THREE.MeshBasicMaterial({ color: 0xbcd9ff, transparent: true, opacity: 0 }),
-    new THREE.MeshBasicMaterial({ color: 0xffd9a0, transparent: true, opacity: 0 }),
+    new THREE.MeshBasicMaterial({ color: 0xbcd9ff, transparent: true, opacity: 0.9 }),
+    new THREE.MeshBasicMaterial({ color: 0xffd9a0, transparent: true, opacity: 0.9 }),
   ];
   const tracers = [];
   for (let i = 0; i < 40; i++) {
@@ -111,10 +111,15 @@ const fx = (() => {
     shakeAmt: 0,
     tracer(from, to, team) {
       const t = tracers[tracerIdx++ % tracers.length];
-      const len = from.distanceTo(to);
-      if (len < 0.5) return;
+      const full = from.distanceTo(to);
+      if (full < 0.5) return;
+      // Start at the muzzle, not the eye: a beam that begins at the camera
+      // blooms into a wedge across the near plane.
+      const dirv = to.clone().sub(from).normalize();
+      const start = from.clone().addScaledVector(dirv, Math.min(0.9, full * 0.3));
+      const len = start.distanceTo(to);
       t.mesh.material = tracerMats[team];
-      t.mesh.position.copy(from).add(to).multiplyScalar(0.5);
+      t.mesh.position.copy(start).add(to).multiplyScalar(0.5);
       t.mesh.lookAt(to);
       t.mesh.scale.set(1, 1, len);
       t.mesh.visible = true;
@@ -254,10 +259,10 @@ for (const key of Object.keys(WEAPONS)) {
   camera.add(viewmodels[key]);
 }
 const muzzlePlane = new THREE.Mesh(
-  new THREE.PlaneGeometry(0.16, 0.16),
-  new THREE.MeshBasicMaterial({ color: 0xffd9a0, transparent: true, opacity: 0, depthWrite: false }),
+  new THREE.PlaneGeometry(0.08, 0.08),
+  new THREE.MeshBasicMaterial({ color: 0xffb36b, transparent: true, opacity: 0, depthWrite: false }),
 );
-muzzlePlane.position.set(0.24, -0.17, -0.95);
+muzzlePlane.position.set(0.24, -0.215, -0.9);
 camera.add(muzzlePlane);
 
 game.hud = createHUD(game);
@@ -740,23 +745,27 @@ function setupShot(name) {
     giveWeapon(P.loadout, 'longbow');
     P.loadout.armor = true;
     P.hp = 78;
-    pose(P, 4.5, 1.5, 90);
+    // North side of the crossing, trading shots down the A-main lane: the
+    // mid block is clear of this sightline, two Wardens are in the open.
+    pose(P, 5.5, -4.4, 82);
     P.pitch = -0.02;
-    pose(jackals[0], 2, 4.5, 100);
-    pose(jackals[1], 6.5, -3.5, 80);
-    pose(jackals[2], -6, 5.5, 95);
-    pose(jackals[3], -14, -4, 90);
-    pose(wardens[0], -4, -1.5, -95);
-    pose(wardens[1], -11, 2, -85);
+    pose(jackals[0], 3, -6.8, 96);
+    pose(jackals[1], 7.2, -1.2, 84);
+    pose(jackals[2], -2, 6, 95);
+    pose(jackals[3], -13, -5, 88);
+    pose(wardens[0], -3.5, -5.2, -80);
+    pose(wardens[1], -9, -2.2, -95);
     pose(wardens[2], 12, -8, 120);
     pose(wardens[3], 20, -12, 90);
     pose(wardens[4], 20, 12, 90);
     wardens[0].hp = 40;
-    // A tracer mid-flight and a muzzle flash sell the moment.
-    const from = new THREE.Vector3(P.pos.x, 1.55, P.pos.z);
-    const to = new THREE.Vector3(wardens[0].pos.x, 1.15, wardens[0].pos.z);
-    fx.tracer(from, to, TEAM.JACKAL);
-    P.muzzle = 0.4;
+    // A tracer mid-flight and a live muzzle, re-lit every frame by the
+    // shot-mode loop below so they are still burning at capture time.
+    game.shotTracer = {
+      from: new THREE.Vector3(P.pos.x, 1.55, P.pos.z),
+      to: new THREE.Vector3(wardens[0].pos.x, 1.15, wardens[0].pos.z),
+      team: TEAM.JACKAL,
+    };
     game.hud.killfeed('<b>You</b> ▸ <b>Hale</b>');
   } else if (name === 'end') {
     game.phase = 'live';
@@ -790,6 +799,10 @@ function frame(now) {
   last = now;
   if (shotMode) {
     fx.update(frameDt);
+    if (game.shotTracer) {
+      fx.tracer(game.shotTracer.from, game.shotTracer.to, game.shotTracer.team);
+      player.muzzle = 0.05;
+    }
     poseCamera(frameDt);
     game.hud.update(game, now);
     renderer.render(scene, camera);
